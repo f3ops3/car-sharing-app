@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
@@ -22,7 +23,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "cars")
 public class Car {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
     private String model;
@@ -33,7 +34,7 @@ public class Car {
     @Column(nullable = false)
     private int inventory;
     @Column(nullable = false)
-    private BigDecimal daileFee;
+    private BigDecimal dailyFee;
     @Column(nullable = false)
     private boolean isDeleted = false;
 }
