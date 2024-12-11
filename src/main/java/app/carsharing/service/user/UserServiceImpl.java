@@ -1,13 +1,17 @@
 package app.carsharing.service.user;
 
+import app.carsharing.dto.user.UserDto;
 import app.carsharing.dto.user.UserRegistrationRequestDto;
 import app.carsharing.dto.user.UserResponseDto;
+import app.carsharing.dto.user.UserUpdateRequestDto;
+import app.carsharing.dto.user.UserUpdateRoleRequestDto;
+import app.carsharing.exception.DataProcessingException;
 import app.carsharing.exception.RegistrationException;
 import app.carsharing.mapper.UserMapper;
 import app.carsharing.model.User;
 import app.carsharing.model.enums.Role;
 import app.carsharing.repository.user.UserRepository;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,7 +23,6 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
     @Override
     public UserResponseDto register(UserRegistrationRequestDto userRegistrationRequestDto)
             throws RegistrationException {
@@ -32,5 +35,33 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(userRegistrationRequestDto.getPassword()));
         userRepository.save(user);
         return userMapper.toDto(user);
+    }
+
+    @Override
+    public UserDto getCurrentUserProfile(User user) {
+        return userMapper.toFullDto(user);
+    }
+
+    @Override
+    public UserDto updateUserRole(Long id, UserUpdateRoleRequestDto updateRoleRequestDto) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("User with id: " + id + " not found")
+        );
+        try {
+            user.setRole(Role.valueOf(updateRoleRequestDto.getRole()));
+        } catch (IllegalArgumentException e) {
+            throw new DataProcessingException("Invalid role with name: "
+                    + updateRoleRequestDto.getRole());
+        }
+        return userMapper.toFullDto(userRepository.save(user));
+    }
+
+    @Override
+    public UserDto updateUserProfile(Long userId, UserUpdateRequestDto updateRequestDto) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new EntityNotFoundException("User with id: " + userId + " not found")
+        );
+        userMapper.updateUser(user, updateRequestDto);
+        return userMapper.toFullDto(userRepository.save(user));
     }
 }

@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-users-in-users-table
+      author: panchenko
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  value: "admin@gmail.com"
+              - column:
+                  name: password
+                  value: "$2a$10$wyEj8ZSmdRmD20y2WY0P2uBPKxnJIbDN2QJy/aCKMUdMH8SfQh56S"
+              - column:
+                  name: first_name
+                  value: "admin"
+              - column:
+                  name: last_name
+                  value: "admin"
+              - column:
+                  name: "role"
+                  value: "MANAGER"
+
