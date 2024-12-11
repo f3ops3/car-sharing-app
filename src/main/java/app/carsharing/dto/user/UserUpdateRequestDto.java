@@ -6,11 +6,14 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 @Data
-public class UserLoginRequestDto {
-    @NotBlank
+public class UserUpdateRequestDto {
     @Email
+    @Length(max = 60)
     private String email;
     @NotBlank
-    @Length(min = 8, max = 20)
-    private String password;
+    @Length(max = 60)
+    private String firstName;
+    @NotBlank
+    @Length(max = 60)
+    private String lastName;
 }
