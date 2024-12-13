@@ -11,7 +11,7 @@ databaseChangeLog:
                   value: "admin@gmail.com"
               - column:
                   name: password
-                  value: "$2a$10$wyEj8ZSmdRmD20y2WY0P2uBPKxnJIbDN2QJy/aCKMUdMH8SfQh56S"
+                  value: "$2a$10$ixlpPvFHFc2IrnIxtMYnF.1a/sPadhLo4DG9rXk/jIqcIIaB4BetC"
               - column:
                   name: first_name
                   value: "admin"

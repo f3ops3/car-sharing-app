@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +24,7 @@ public class UserController {
     private final UserService userService;
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{id}/role")
+    @PatchMapping("/{id}/role")
     public UserDto updateRole(@PathVariable Long id,
                               @RequestBody @Valid UserUpdateRoleRequestDto updateRoleRequestDto) {
         return userService.updateUserRole(id, updateRoleRequestDto);
