@@ -1,4 +1,4 @@
-package app.carsharing.service.car;
+package app.carsharing.service.car.impl;
 
 import app.carsharing.dto.car.CarDetailedResponseDto;
 import app.carsharing.dto.car.CarResponseDto;
@@ -7,6 +7,7 @@ import app.carsharing.dto.car.CreateCarRequestDto;
 import app.carsharing.mapper.CarMapper;
 import app.carsharing.model.Car;
 import app.carsharing.repository.car.CarRepository;
+import app.carsharing.service.car.CarService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

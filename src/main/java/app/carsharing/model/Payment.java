@@ -14,9 +14,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
-import java.net.URL;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -25,6 +25,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Setter
 @SQLDelete(sql = "UPDATE payments SET is_deleted = true WHERE id=?")
 @SQLRestriction("is_deleted=false")
+@Accessors(chain = true)
 @Table(name = "payments")
 public class Payment {
     @Id
@@ -36,7 +37,7 @@ public class Payment {
     @Column(nullable = false)
     private BigDecimal amountToPay;
     @Column(nullable = false)
-    private URL session;
+    private String session;
     @Column(nullable = false)
     private String sessionId;
     @Enumerated(EnumType.STRING)
