@@ -30,7 +30,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: session
-                  type: varchar(255)
+                  type: varchar(512)
                   constraints:
                     nullable: false
               - column:

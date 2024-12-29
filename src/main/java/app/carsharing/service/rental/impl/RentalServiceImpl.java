@@ -1,4 +1,4 @@
-package app.carsharing.service.rental;
+package app.carsharing.service.rental.impl;
 
 import app.carsharing.dto.rental.CreateRentalRequestDto;
 import app.carsharing.dto.rental.RentalActualReturnDateDto;
@@ -13,6 +13,7 @@ import app.carsharing.model.User;
 import app.carsharing.repository.SpecificationBuilder;
 import app.carsharing.repository.car.CarRepository;
 import app.carsharing.repository.rental.RentalRepository;
+import app.carsharing.service.rental.RentalService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

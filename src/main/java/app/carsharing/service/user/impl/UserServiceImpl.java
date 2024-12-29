@@ -1,4 +1,4 @@
-package app.carsharing.service.user;
+package app.carsharing.service.user.impl;
 
 import app.carsharing.dto.user.UserDto;
 import app.carsharing.dto.user.UserRegistrationRequestDto;
@@ -11,6 +11,7 @@ import app.carsharing.mapper.UserMapper;
 import app.carsharing.model.User;
 import app.carsharing.model.enums.Role;
 import app.carsharing.repository.user.UserRepository;
+import app.carsharing.service.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

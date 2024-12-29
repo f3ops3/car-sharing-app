@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RentalController {
     private final RentalService rentalService;
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public RentalDetailedDto createRental(@AuthenticationPrincipal User user,
@@ -43,14 +43,14 @@ public class RentalController {
         return rentalService.getRentals(user, searchParameters, pageable);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping("/{id}")
     public RentalDetailedDto getRental(@AuthenticationPrincipal User user,
                                        @PathVariable Long id) {
         return rentalService.getRentalById(id, user);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/{id}/return")
     public RentalResponseDto returnRental(@AuthenticationPrincipal User user,
                                           @RequestBody @Valid RentalActualReturnDateDto dto,
