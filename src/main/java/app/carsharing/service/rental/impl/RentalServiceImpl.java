@@ -13,6 +13,8 @@ import app.carsharing.model.User;
 import app.carsharing.repository.SpecificationBuilder;
 import app.carsharing.repository.car.CarRepository;
 import app.carsharing.repository.rental.RentalRepository;
+import app.carsharing.service.notification.Message;
+import app.carsharing.service.notification.impl.TelegramNotificationService;
 import app.carsharing.service.rental.RentalService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -30,6 +32,7 @@ public class RentalServiceImpl implements RentalService {
     private final CarRepository carRepository;
     private final RentalMapper rentalMapper;
     private final SpecificationBuilder<Rental> specificationBuilder;
+    private final TelegramNotificationService notificationService;
 
     @Transactional
     @Override
@@ -44,6 +47,10 @@ public class RentalServiceImpl implements RentalService {
         rental.setUser(user);
         rental.setCar(car);
         carRepository.save(car);
+        if (user.getTgChatId() != null) {
+            notificationService.sentNotification(user.getTgChatId(),
+                    Message.getRentalMessageForCustomer(rental));
+        }
         return rentalMapper.toDetailedDto(rentalRepository.save(rental));
     }
 

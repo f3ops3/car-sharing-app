@@ -14,6 +14,8 @@ import app.carsharing.model.enums.Type;
 import app.carsharing.repository.car.CarRepository;
 import app.carsharing.repository.payment.PaymentRepository;
 import app.carsharing.repository.rental.RentalRepository;
+import app.carsharing.service.notification.Message;
+import app.carsharing.service.notification.impl.TelegramNotificationService;
 import app.carsharing.service.payment.PaymentService;
 import app.carsharing.service.payment.impl.strategy.PaymentCalculationStrategy;
 import com.stripe.exception.StripeException;
@@ -25,6 +27,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -37,6 +41,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentCalculationStrategy paymentCalculationStrategy;
     private final PaymentMapper paymentMapper;
     private final CarRepository carRepository;
+    private final TelegramNotificationService notificationService;
 
     @Override
     public PaymentResponseDto createPaymentSession(User user,
@@ -96,6 +101,13 @@ public class PaymentServiceImpl implements PaymentService {
             if (session.getStatus().equals(COMPLETE_SESSION_STATUS)) {
                 payment.setStatus(Status.PAID);
                 paymentRepository.save(payment);
+                Authentication authentication = SecurityContextHolder
+                        .getContext().getAuthentication();
+                User user = (User) authentication.getPrincipal();
+                if (user.getTgChatId() != null) {
+                    notificationService.sentNotification(user.getTgChatId(),
+                            Message.getSuccessfulPaymentMessageForCustomer(payment));
+                }
                 return paymentMapper.toStatusDto(payment).setMessage("Successful payment");
             }
             return paymentMapper.toStatusDto(payment).setMessage("Unsuccessful payment");

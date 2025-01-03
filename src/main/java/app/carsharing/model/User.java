@@ -42,6 +42,7 @@ public class User implements UserDetails {
     private Role role;
     @Column(nullable = false)
     private boolean isDeleted = false;
+    private Long tgChatId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
