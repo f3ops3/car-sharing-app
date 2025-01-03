@@ -1,7 +1,7 @@
 package app.carsharing.mapper;
 
 import app.carsharing.config.MapperConfig;
-import app.carsharing.dto.user.UserDto;
+import app.carsharing.dto.user.UserDetailedDto;
 import app.carsharing.dto.user.UserRegistrationRequestDto;
 import app.carsharing.dto.user.UserResponseDto;
 import app.carsharing.dto.user.UserUpdateRequestDto;
@@ -15,7 +15,7 @@ public interface UserMapper {
 
     User toEntity(UserRegistrationRequestDto userRegistrationRequestDto);
 
-    UserDto toFullDto(User user);
+    UserDetailedDto toFullDto(User user);
 
     void updateUser(@MappingTarget User user,
                     UserUpdateRequestDto userUpdateRequestDto);

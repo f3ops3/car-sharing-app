@@ -1,10 +1,11 @@
 package app.carsharing.service.user.impl;
 
-import app.carsharing.dto.user.UserDto;
+import app.carsharing.dto.user.UserDetailedDto;
 import app.carsharing.dto.user.UserRegistrationRequestDto;
 import app.carsharing.dto.user.UserResponseDto;
 import app.carsharing.dto.user.UserUpdateRequestDto;
 import app.carsharing.dto.user.UserUpdateRoleRequestDto;
+import app.carsharing.dto.user.UserUpdateTgChatId;
 import app.carsharing.exception.DataProcessingException;
 import app.carsharing.exception.RegistrationException;
 import app.carsharing.mapper.UserMapper;
@@ -39,12 +40,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getCurrentUserProfile(User user) {
+    public UserDetailedDto getCurrentUserProfile(User user) {
         return userMapper.toFullDto(user);
     }
 
     @Override
-    public UserDto updateUserRole(Long id, UserUpdateRoleRequestDto updateRoleRequestDto) {
+    public UserDetailedDto updateUserRole(Long id, UserUpdateRoleRequestDto updateRoleRequestDto) {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("User with id: " + id + " not found")
         );
@@ -58,11 +59,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUserProfile(Long userId, UserUpdateRequestDto updateRequestDto) {
+    public UserDetailedDto updateUserProfile(Long userId, UserUpdateRequestDto updateRequestDto) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new EntityNotFoundException("User with id: " + userId + " not found")
         );
         userMapper.updateUser(user, updateRequestDto);
+        return userMapper.toFullDto(userRepository.save(user));
+    }
+
+    @Override
+    public UserDetailedDto updateUserTgChatId(Long id, UserUpdateTgChatId userUpdateTgChatId) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("User with id: " + id + " not found")
+        );
+        user.setTgChatId(userUpdateTgChatId.getTgChaId());
         return userMapper.toFullDto(userRepository.save(user));
     }
 }

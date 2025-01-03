@@ -1,8 +1,9 @@
 package app.carsharing.controller;
 
-import app.carsharing.dto.user.UserDto;
+import app.carsharing.dto.user.UserDetailedDto;
 import app.carsharing.dto.user.UserUpdateRequestDto;
 import app.carsharing.dto.user.UserUpdateRoleRequestDto;
+import app.carsharing.dto.user.UserUpdateTgChatId;
 import app.carsharing.model.User;
 import app.carsharing.service.user.UserService;
 import jakarta.validation.Valid;
@@ -25,19 +26,25 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/role")
-    public UserDto updateRole(@PathVariable Long id,
-                              @RequestBody @Valid UserUpdateRoleRequestDto updateRoleRequestDto) {
-        return userService.updateUserRole(id, updateRoleRequestDto);
+    public UserDetailedDto updateRole(@PathVariable Long id,
+                                      @RequestBody @Valid UserUpdateRoleRequestDto updateRoleDto) {
+        return userService.updateUserRole(id, updateRoleDto);
     }
 
     @PutMapping("/me")
-    public UserDto updateUserProfile(@AuthenticationPrincipal User user,
-                                     @RequestBody @Valid UserUpdateRequestDto updateRequestDto) {
-        return userService.updateUserProfile(user.getId(), updateRequestDto);
+    public UserDetailedDto updateUserProfile(@AuthenticationPrincipal User user,
+                                             @RequestBody @Valid UserUpdateRequestDto updateDto) {
+        return userService.updateUserProfile(user.getId(), updateDto);
     }
 
     @GetMapping("/me")
-    public UserDto getCurrentUser(@AuthenticationPrincipal User user) {
+    public UserDetailedDto getCurrentUser(@AuthenticationPrincipal User user) {
         return userService.getCurrentUserProfile(user);
+    }
+
+    @PatchMapping("/telegram")
+    public UserDetailedDto updateTgChatId(@AuthenticationPrincipal User user,
+                                          @RequestBody @Valid UserUpdateTgChatId updateTgChatId) {
+        return userService.updateUserTgChatId(user.getId(), updateTgChatId);
     }
 }

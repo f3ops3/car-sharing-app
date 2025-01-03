@@ -8,11 +8,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up JDK 21
         uses: actions/setup-java@v2
         with:
           java-version: '21'
           distribution: 'adopt'
           cache: maven
+
+      - name: Create .env file
+        run: |
+          echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env
+          echo "TELEGRAM_BOT_NAME=${{ secrets.TELEGRAM_BOT_NAME }}" >> .env
+
       - name: Build with Maven
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_BOT_NAME: ${{ secrets.TELEGRAM_BOT_NAME }}
         run: mvn --batch-mode --update-snapshots verify
