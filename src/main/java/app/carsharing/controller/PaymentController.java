@@ -6,6 +6,8 @@ import app.carsharing.dto.payment.PaymentResponseDto;
 import app.carsharing.dto.payment.PaymentStatusResponseDto;
 import app.carsharing.model.User;
 import app.carsharing.service.payment.PaymentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,12 +22,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Car sharing", description = "Endpoints for payments management")
 @RestController
 @RequestMapping("/payments")
 @RequiredArgsConstructor
 public class PaymentController {
     private final PaymentService paymentService;
 
+    @Operation(summary = "Create new payment")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PaymentResponseDto createPayment(@AuthenticationPrincipal User user,
@@ -33,6 +37,7 @@ public class PaymentController {
         return paymentService.createPaymentSession(user, requestDto);
     }
 
+    @Operation(summary = "Get specific payment by id")
     @GetMapping("/{id}")
     public Page<PaymentDetailedResponseDto> getPayment(@AuthenticationPrincipal User user,
                                                        @PathVariable Long id,
@@ -40,11 +45,13 @@ public class PaymentController {
         return paymentService.getPayments(user, id, pageable);
     }
 
+    @Operation(summary = "Handle success payment")
     @GetMapping("/success/{sessionId}")
     public PaymentStatusResponseDto handleSuccess(@PathVariable String sessionId) {
         return paymentService.handleSuccess(sessionId);
     }
 
+    @Operation(summary = "Handle cancel payment")
     @GetMapping("/cancel/{sessionId}")
     public PaymentStatusResponseDto handleCancel(@PathVariable String sessionId) {
         return paymentService.handleCancel(sessionId);
