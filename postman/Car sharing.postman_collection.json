@@ -1,0 +1,433 @@
+{
+	"info": {
+		"_postman_id": "0b0e42c7-16fd-4fc0-86d8-e9c56d3038fd",
+		"name": "Car sharing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "38485286"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Create new account",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"john@gmail.com\",\r\n  \"password\": \"qwer1234\",\r\n  \"repeatPassword\": \"qwer1234\",\r\n  \"firstName\": \"John\",\r\n  \"lastName\": \"Snow\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/auth/registration"
+					},
+					"response": []
+				},
+				{
+					"name": "Log in",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"john@gmail.com\",\r\n    \"password\": \"qwer1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/auth/login"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Current profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzQxMjMzNTUsImV4cCI6MTczNDEyMzY1NX0.Azh1OijRp1-CkIS-Xt1P3b3wurzSWJLjN2SAIQbEkCw"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/users/me"
+					},
+					"response": []
+				},
+				{
+					"name": "Update profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huQGdtYWlsLmNvbSIsImlhdCI6MTczMzg3NDc1NCwiZXhwIjoxNzMzODc1MDU0fQ.fwBhiSND6CZYWsQf7uBjXhaiBLcGVhyrDDrPjw0JVF0"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin@gmail.com\",\r\n    \"firstName\": \"john2\",\r\n    \"lastName\": \"snow2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/users/me"
+					},
+					"response": []
+				},
+				{
+					"name": "Update role",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzM4NzUyMzgsImV4cCI6MTczMzg3NTUzOH0.5fRmGEKL4cnj2SO6LDAsXvBGnwuNicSWVGK1ZKKYkXo"
+							}
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"role\": \"CUSTOMER\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/users/2/role"
+					},
+					"response": []
+				},
+				{
+					"name": "Update tg chat id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzU4NjAzNzMsImV4cCI6MTczNTg2MzM3M30.2UEqmkzL9fSSb4Tla8jOd5ReleysxKXWT2foGVwKAYQ"
+							}
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"tgChaId\": 859635998\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/users/telegram"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cars",
+			"item": [
+				{
+					"name": "Get all cars",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzQxMjQwNTYsImV4cCI6MTczNDEyNDM1Nn0.KvnkUBfmGoxFUVqQ0G7-gRJX8cRd3yHfqtEz3T0BWgI"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/cars"
+					},
+					"response": []
+				},
+				{
+					"name": "Get car by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzQxMjM4OTgsImV4cCI6MTczNDEyNDE5OH0.mVjYKChcpe8VObhz4cmKLRJlHfS01HefIfH5GRmS-A8"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/cars/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Add car",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzQxMjQwNTYsImV4cCI6MTczNDEyNDM1Nn0.KvnkUBfmGoxFUVqQ0G7-gRJX8cRd3yHfqtEz3T0BWgI"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"model\": \"A5\",\r\n    \"brand\": \"BMW\",\r\n    \"carType\": \"SEDAN\",\r\n    \"inventory\": 5,\r\n    \"dailyFee\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/cars"
+					},
+					"response": []
+				},
+				{
+					"name": "Update car inventory",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzQxMjM4OTgsImV4cCI6MTczNDEyNDE5OH0.mVjYKChcpe8VObhz4cmKLRJlHfS01HefIfH5GRmS-A8"
+							}
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"inventory\": 6\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/cars/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Update car",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzQxMjQwNTYsImV4cCI6MTczNDEyNDM1Nn0.KvnkUBfmGoxFUVqQ0G7-gRJX8cRd3yHfqtEz3T0BWgI"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"model\": \"GLE 5\",\r\n    \"brand\": \"Mercedes\",\r\n    \"carType\": \"SEDAN\",\r\n    \"inventory\": 6,\r\n    \"dailyFee\": 30\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/cars/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete car",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzQxMjQwNTYsImV4cCI6MTczNDEyNDM1Nn0.KvnkUBfmGoxFUVqQ0G7-gRJX8cRd3yHfqtEz3T0BWgI"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/cars/2"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rental",
+			"item": [
+				{
+					"name": "Create rental",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huQGdtYWlsLmNvbSIsImlhdCI6MTczNDQ1NjkyNiwiZXhwIjoxNzM0NDU5OTI2fQ.FuCK6GttJVV4w1rzQ8SsC-lE59O2_Qrooww9XS5i5lU"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rentalDate\": \"2024-12-15\",\r\n    \"returnDate\": \"2024-12-22\",\r\n    \"carId\": 2\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/rentals"
+					},
+					"response": []
+				},
+				{
+					"name": "Return rental",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huQGdtYWlsLmNvbSIsImlhdCI6MTczNDQ2MjQyNywiZXhwIjoxNzM0NDY1NDI3fQ.WhK5C1oD91Xd-fN4p9yMINFKYMzNXagRfVVnqFcfRg4"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"actualReturnDate\": \"2024-12-20\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/rentals/1/return"
+					},
+					"response": []
+				},
+				{
+					"name": "Get rentals",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huQGdtYWlsLmNvbSIsImlhdCI6MTczNDQ2MjQyNywiZXhwIjoxNzM0NDY1NDI3fQ.WhK5C1oD91Xd-fN4p9yMINFKYMzNXagRfVVnqFcfRg4"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": 2,\r\n    \"isActive\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/rentals"
+					},
+					"response": []
+				},
+				{
+					"name": "Get rental by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huQGdtYWlsLmNvbSIsImlhdCI6MTczNDQ2MTAzOSwiZXhwIjoxNzM0NDY0MDM5fQ.1f8p7LbbEkhkvWorOw8D5xrkHXCLkQiYP_cHpEX70jM"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/rentals/2"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "payments",
+			"item": [
+				{
+					"name": "Create session",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzU0MzYxODEsImV4cCI6MTczNTQzOTE4MX0.bKNVjLSW1J1LuHQ-ocnIzg76GNJxRA26Sa1nr2eb3nQ"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rentalId\": 4,\r\n    \"paymentType\": \"PAYMENT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/payments"
+					},
+					"response": []
+				},
+				{
+					"name": "Get payments",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Handle success",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzU0MzYxODEsImV4cCI6MTczNTQzOTE4MX0.bKNVjLSW1J1LuHQ-ocnIzg76GNJxRA26Sa1nr2eb3nQ"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/payments/success/cs_test_a16zgz0eqX3436DY8nxIH22JB5CQ2Wf8jtp20AljnYBCrXMM5Q6Vx0ipiw"
+					},
+					"response": []
+				},
+				{
+					"name": "Handle cancel",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MzU0MzYxODEsImV4cCI6MTczNTQzOTE4MX0.bKNVjLSW1J1LuHQ-ocnIzg76GNJxRA26Sa1nr2eb3nQ"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/payments/cancel/cs_test_a16zgz0eqX3436DY8nxIH22JB5CQ2Wf8jtp20AljnYBCrXMM5Q6Vx0ipiw"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
