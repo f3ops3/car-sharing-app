@@ -1,4 +1,4 @@
-package app.carsharing.service.notification;
+package app.carsharing.util;
 
 import app.carsharing.model.Payment;
 import app.carsharing.model.Rental;

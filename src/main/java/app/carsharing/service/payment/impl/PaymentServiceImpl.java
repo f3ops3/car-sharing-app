@@ -4,6 +4,7 @@ import app.carsharing.dto.payment.PaymentDetailedResponseDto;
 import app.carsharing.dto.payment.PaymentRequestDto;
 import app.carsharing.dto.payment.PaymentResponseDto;
 import app.carsharing.dto.payment.PaymentStatusResponseDto;
+import app.carsharing.exception.NotificationException;
 import app.carsharing.exception.PaymentException;
 import app.carsharing.mapper.PaymentMapper;
 import app.carsharing.model.Payment;
@@ -14,10 +15,10 @@ import app.carsharing.model.enums.Type;
 import app.carsharing.repository.car.CarRepository;
 import app.carsharing.repository.payment.PaymentRepository;
 import app.carsharing.repository.rental.RentalRepository;
-import app.carsharing.service.notification.Message;
 import app.carsharing.service.notification.impl.TelegramNotificationService;
 import app.carsharing.service.payment.PaymentService;
 import app.carsharing.service.payment.impl.strategy.PaymentCalculationStrategy;
+import app.carsharing.util.Message;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,6 +26,8 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -35,6 +38,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
     private static final String COMPLETE_SESSION_STATUS = "complete";
+    private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
     private final StripeService stripeService;
     private final RentalRepository rentalRepository;
     private final PaymentRepository paymentRepository;
@@ -46,33 +50,12 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponseDto createPaymentSession(User user,
                                                    PaymentRequestDto paymentRequestDto) {
-        if (paymentRepository.findByRentalIdAndStatusIn(paymentRequestDto.getRentalId(),
-                List.of(Status.PAID, Status.PENDING)).isPresent()) {
-            throw new PaymentException("Payment already exists");
-        }
-        Rental rental = rentalRepository.findById(paymentRequestDto.getRentalId()).orElseThrow(
-                () -> new EntityNotFoundException("Rental with id: "
-                        + paymentRequestDto.getRentalId() + " not found")
-        );
-        rental.setCar(carRepository.findById(rental.getCar().getId()).orElseThrow(
-                () -> new EntityNotFoundException("Car with id: " + rental.getCar().getId())
-        ));
-        if (!rental.getUser().getId().equals(user.getId())) {
-            throw new PaymentException("You don't have permission to rental with id: "
-                    + rental.getId());
-        }
+        Rental rental = validatePaymentRequest(paymentRequestDto, user);
         String paymentRequestType = paymentRequestDto.getPaymentType();
-        BigDecimal amountToPay = paymentCalculationStrategy
-                .getCalculationService(paymentRequestType.toUpperCase())
-                .calculatePayment(rental);
+        BigDecimal amountToPay = calculatePayment(rental, paymentRequestType);
         Session session = stripeService.createSession(amountToPay);
-        Payment payment = new Payment()
-                .setRental(rental)
-                .setAmountToPay(amountToPay)
-                .setSessionId(session.getId())
-                .setSession(session.getUrl())
-                .setStatus(Status.PENDING)
-                .setType(Type.valueOf(paymentRequestType));
+        Payment payment = preparePayment(amountToPay, rental, session,
+                Type.valueOf(paymentRequestType));
         return paymentMapper.toDto(paymentRepository.save(payment));
     }
 
@@ -93,24 +76,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentStatusResponseDto handleSuccess(String sessionId) {
         try {
-            Payment payment = paymentRepository.findBySessionId(sessionId).orElseThrow(
-                    () -> new EntityNotFoundException("Can't find payment by "
-                            + "sessionId: " + sessionId)
-            );
-            Session session = Session.retrieve(sessionId);
-            if (session.getStatus().equals(COMPLETE_SESSION_STATUS)) {
-                payment.setStatus(Status.PAID);
-                paymentRepository.save(payment);
-                Authentication authentication = SecurityContextHolder
-                        .getContext().getAuthentication();
-                User user = (User) authentication.getPrincipal();
-                if (user.getTgChatId() != null) {
-                    notificationService.sentNotification(user.getTgChatId(),
-                            Message.getSuccessfulPaymentMessageForCustomer(payment));
-                }
-                return paymentMapper.toStatusDto(payment).setMessage("Successful payment");
-            }
-            return paymentMapper.toStatusDto(payment).setMessage("Unsuccessful payment");
+            Payment payment = getPayment(sessionId);
+            updatePaymentStatus(payment, sessionId);
+            notifyUser(payment);
+            return buildResponse(payment, "Successful payment");
         } catch (StripeException e) {
             throw new PaymentException("Stripe error with session: " + sessionId);
         }
@@ -118,11 +87,80 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentStatusResponseDto handleCancel(String sessionId) {
-        Payment payment = paymentRepository.findBySessionId(sessionId).orElseThrow(
-                () -> new EntityNotFoundException("Can't find payment by sessionId: " + sessionId)
-        );
+        Payment payment = getPayment(sessionId);
         payment.setStatus(Status.CANCELED);
         return paymentMapper.toStatusDto(paymentRepository.save(payment))
                 .setMessage("Payment session canceled");
+    }
+
+    private Payment getPayment(String sessionId) {
+        return paymentRepository.findBySessionId(sessionId).orElseThrow(
+                () -> new EntityNotFoundException("Can't find payment by "
+                        + "sessionId: " + sessionId)
+        );
+    }
+
+    private void notifyUser(Payment payment) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
+            return;
+        }
+        if (user.getTgChatId() != null) {
+            try {
+                notificationService.sendNotification(user.getTgChatId(),
+                        Message.getSuccessfulPaymentMessageForCustomer(payment));
+            } catch (NotificationException e) {
+                logger.error("Failed to send notification to Telegram for user {}: {}",
+                        user.getId(), e.getMessage());
+            }
+        }
+    }
+
+    private void updatePaymentStatus(Payment payment, String sessionId) throws StripeException {
+        Session session = Session.retrieve(sessionId);
+        if (COMPLETE_SESSION_STATUS.equals(session.getStatus())) {
+            payment.setStatus(Status.PAID);
+            paymentRepository.save(payment);
+        }
+    }
+
+    private BigDecimal calculatePayment(Rental rental, String type) {
+        return paymentCalculationStrategy
+                .getCalculationService(type.toUpperCase())
+                .calculatePayment(rental);
+    }
+
+    private Rental validatePaymentRequest(PaymentRequestDto paymentRequestDto, User user) {
+        if (paymentRepository.findByRentalIdAndStatusIn(paymentRequestDto.getRentalId(),
+                List.of(Status.PAID, Status.PENDING)).isPresent()) {
+            throw new PaymentException("Payment already exists");
+        }
+        Rental rental = rentalRepository.findById(paymentRequestDto.getRentalId()).orElseThrow(
+                () -> new EntityNotFoundException("Rental with id: "
+                        + paymentRequestDto.getRentalId() + " not found")
+        );
+        rental.setCar(carRepository.findById(rental.getCar().getId()).orElseThrow(
+                () -> new EntityNotFoundException("Car with id: " + rental.getCar().getId())
+        ));
+        if (!rental.getUser().getId().equals(user.getId())) {
+            throw new PaymentException("You don't have permission to rental with id: "
+                    + rental.getId());
+        }
+        return rental;
+    }
+
+    private Payment preparePayment(BigDecimal amountToPay, Rental rental,
+                                   Session session, Type type) {
+        return new Payment()
+                .setRental(rental)
+                .setAmountToPay(amountToPay)
+                .setSessionId(session.getId())
+                .setSession(session.getUrl())
+                .setStatus(Status.PENDING)
+                .setType(type);
+    }
+
+    private PaymentStatusResponseDto buildResponse(Payment payment, String message) {
+        return paymentMapper.toStatusDto(payment).setMessage(message);
     }
 }

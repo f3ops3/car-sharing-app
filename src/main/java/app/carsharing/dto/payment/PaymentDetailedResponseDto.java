@@ -4,8 +4,10 @@ import app.carsharing.model.enums.Status;
 import app.carsharing.model.enums.Type;
 import java.math.BigDecimal;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
 public class PaymentDetailedResponseDto {
     private Long id;
     private String sessionUrl;

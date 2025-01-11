@@ -5,6 +5,7 @@ import app.carsharing.dto.rental.RentalActualReturnDateDto;
 import app.carsharing.dto.rental.RentalDetailedDto;
 import app.carsharing.dto.rental.RentalResponseDto;
 import app.carsharing.dto.rental.RentalSearchParameters;
+import app.carsharing.exception.NotificationException;
 import app.carsharing.exception.RentalException;
 import app.carsharing.mapper.RentalMapper;
 import app.carsharing.model.Car;
@@ -13,12 +14,14 @@ import app.carsharing.model.User;
 import app.carsharing.repository.SpecificationBuilder;
 import app.carsharing.repository.car.CarRepository;
 import app.carsharing.repository.rental.RentalRepository;
-import app.carsharing.service.notification.Message;
 import app.carsharing.service.notification.impl.TelegramNotificationService;
 import app.carsharing.service.rental.RentalService;
+import app.carsharing.util.Message;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class RentalServiceImpl implements RentalService {
+    private static final Logger logger = LogManager.getLogger(RentalServiceImpl.class);
     private final RentalRepository rentalRepository;
     private final CarRepository carRepository;
     private final RentalMapper rentalMapper;
@@ -46,10 +50,18 @@ public class RentalServiceImpl implements RentalService {
         Rental rental = rentalMapper.toEntity(requestDto);
         rental.setUser(user);
         rental.setCar(car);
+        car.setInventory(car.getInventory() - 1);
         carRepository.save(car);
         if (user.getTgChatId() != null) {
-            notificationService.sentNotification(user.getTgChatId(),
-                    Message.getRentalMessageForCustomer(rental));
+            try {
+                notificationService.sendNotification(
+                        user.getTgChatId(),
+                        Message.getRentalMessageForCustomer(rental)
+                );
+            } catch (NotificationException e) {
+                logger.error("Failed to send notification to Telegram for user {}: {}",
+                        user.getId(), e.getMessage());
+            }
         }
         return rentalMapper.toDetailedDto(rentalRepository.save(rental));
     }

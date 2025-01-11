@@ -10,7 +10,7 @@ public class TelegramNotificationService implements NotificationService {
     private final TelegramBot notificationBot;
 
     @Override
-    public void sentNotification(Long chatId, String message) {
+    public void sendNotification(Long chatId, String message) {
         notificationBot.sendMessage(chatId, message);
     }
 }
