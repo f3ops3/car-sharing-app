@@ -37,39 +37,40 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(RegistrationException.class)
-    public ResponseEntity<Object> handleCustomNotFoundException(
+    public ResponseEntity<Object> handleRegistrationException(
             RegistrationException ex, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+
+        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Object> handleEntityNotFoundException(
             EntityNotFoundException ex, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(RentalException.class)
-    public ResponseEntity<Object> handleEntityNotFoundException(
+    public ResponseEntity<Object> handleRentalException(
             RentalException ex, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Object> handleEntityNotFoundException(
+    public ResponseEntity<Object> handleAccessDeniedException(
             AccessDeniedException ex, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<Object> handlePaymentException(
+            PaymentException ex, WebRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(NotificationException.class)
+    public ResponseEntity<Object> handleNotificationException(
+            NotificationException ex, WebRequest request) {
+        return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 
     private String getErrorMessage(ObjectError e) {
@@ -79,5 +80,18 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
             return field + " " + message;
         }
         return e.getDefaultMessage();
+    }
+
+    private ResponseEntity<Object> buildErrorResponse(HttpStatus status, String message) {
+        Map<String, Object> body = createErrorResponse(status, List.of(message));
+        return new ResponseEntity<>(body, status);
+    }
+
+    private Map<String, Object> createErrorResponse(HttpStatus status, List<String> messages) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", messages);
+        body.put("status", status.value());
+        return body;
     }
 }

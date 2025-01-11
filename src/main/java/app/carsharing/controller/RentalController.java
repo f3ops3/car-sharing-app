@@ -43,7 +43,7 @@ public class RentalController {
     @Operation(summary = "Get all rentals")
     @GetMapping
     public Page<RentalResponseDto> getRentals(@AuthenticationPrincipal User user,
-                                              @RequestBody RentalSearchParameters searchParameters,
+                                              RentalSearchParameters searchParameters,
                                               Pageable pageable) {
         return rentalService.getRentals(user, searchParameters, pageable);
     }
