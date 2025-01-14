@@ -8,18 +8,18 @@ Users can browse available cars, manage rentals, pay for rentals.
 
 ## Technologies Used
 
-- **Spring Boot** - Backend framework for building the core application
+- **Spring Boot** - Backend framework for building the core application (_version: 3.4.0_)
 - **Spring Security** - For managing authentication and authorization
 - **Spring Data JPA** - For interacting with the database
-- **MySQL** - Database to store books, categories and users information
+- **MySQL** - Database to store books, categories and users information (_version: 8.0.33_)
 - **Docker** - Containerization for easy deployment
-- **Swagger** - API documentation and testing
-- **MapStruct** - Object mapping
-- **Liquibase** - Database change management
-- **JUnit & Mockito** - For testing
-- **Maven** - Builds and manages project dependencies
-- **Stripe API** - Manages payment processing for rentals.
-- **Telegram API** - Sends notifications via a Telegram bot.
+- **Swagger** - API documentation and testing (_version: 2.1.0_)
+- **MapStruct** - Object mapping (_version: 1.5.5_)
+- **Liquibase** - Database change management (_version: 4.29.2_)
+- **JUnit & Mockito** - For testing (_version: 1.20.1_)
+- **Maven** - Builds and manages project dependencies 
+- **Stripe API** - Manages payment processing for rentals. (_version: 28.2.0_)
+- **Telegram API** - Sends notifications via a Telegram bot. (_version: 6.9.7.1_)
 
 ## Controllers functionalities
 
@@ -59,6 +59,9 @@ Users can browse available cars, manage rentals, pay for rentals.
     TELEGRAM_BOT_TOKEN =
     TELEGRAM_BOT_NAME =
 
+    JWT_SECRET=
+    JWT_EXPIRATION=
+
     MYSQLDB_DATABASE=
     MYSQLDB_USER=
     MYSQLDB_PASSWORD=
@@ -75,12 +78,16 @@ Users can browse available cars, manage rentals, pay for rentals.
     
     DOMAIN=
    ```
-3. Build and then start the containers by using Docker Compose
+3. Build the application
+   ``` 
+   mvn clean package
+   ```
+4. Build and then start the containers by using Docker Compose
     ```
    docker-compose build
    docker-compose up
    ```
-4. The application will be accessible at `http://localhost:<YOUR_PORT>/api`.
+5. The application will be accessible at `http://localhost:<YOUR_PORT>/api`.
 
 ## Testing
 

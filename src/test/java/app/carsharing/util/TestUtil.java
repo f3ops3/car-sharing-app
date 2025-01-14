@@ -7,6 +7,7 @@ import app.carsharing.dto.payment.PaymentDetailedResponseDto;
 import app.carsharing.dto.rental.RentalDetailedDto;
 import app.carsharing.dto.rental.RentalResponseDto;
 import app.carsharing.dto.rental.RentalSearchParameters;
+import app.carsharing.dto.user.UserRegistrationRequestDto;
 import app.carsharing.dto.user.UserResponseDto;
 import app.carsharing.model.Car;
 import app.carsharing.model.Payment;
@@ -130,6 +131,14 @@ public final class TestUtil {
                 .setRole(roleName);
     }
 
+    public static User getUser(UserRegistrationRequestDto requestDto) {
+        return new User()
+                .setFirstName(requestDto.getFirstName())
+                .setLastName(requestDto.getLastName())
+                .setEmail(requestDto.getEmail())
+                .setPassword(requestDto.getPassword());
+    }
+
     public static RentalSearchParameters getRentalSearchParameters() {
         return new RentalSearchParameters()
                 .setIsActive("true")
@@ -206,5 +215,21 @@ public final class TestUtil {
                 .setUserId(user.getId())
                 .setRentalDate(rental.getRentalDate())
                 .setReturnDate(rental.getReturnDate());
+    }
+
+    public static UserRegistrationRequestDto userRegistrationRequestDto() {
+        return new UserRegistrationRequestDto()
+                .setFirstName("firstName")
+                .setLastName("lastName")
+                .setEmail("email")
+                .setPassword("password")
+                .setRepeatPassword("password");
+    }
+
+    public static UserResponseDto getUserResponseDto(User user) {
+        return new UserResponseDto()
+                .setEmail(user.getEmail())
+                .setFirstName(user.getFirstName())
+                .setLastName(user.getLastName());
     }
 }
