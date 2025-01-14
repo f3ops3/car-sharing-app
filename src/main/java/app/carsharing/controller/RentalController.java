@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +31,6 @@ public class RentalController {
     private final RentalService rentalService;
 
     @Operation(summary = "Create new rental")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public RentalDetailedDto createRental(@AuthenticationPrincipal User user,
@@ -49,7 +47,6 @@ public class RentalController {
     }
 
     @Operation(summary = "Get specific rental by id")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping("/{id}")
     public RentalDetailedDto getRental(@AuthenticationPrincipal User user,
                                        @PathVariable Long id) {
@@ -57,7 +54,6 @@ public class RentalController {
     }
 
     @Operation(summary = "Return rental")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/{id}/return")
     public RentalResponseDto returnRental(@AuthenticationPrincipal User user,
                                           @RequestBody @Valid RentalActualReturnDateDto dto,
