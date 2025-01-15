@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class StripeConfig {
-    private String stripeApiKey;
 
     @PostConstruct
     public void init() {

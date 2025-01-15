@@ -1,13 +1,14 @@
 package app.carsharing.util;
 
+import app.carsharing.dto.rental.RentalDetailedDto;
 import app.carsharing.model.Payment;
 import app.carsharing.model.Rental;
 
 public class Message {
-    public static String getRentalMessageForCustomer(Rental rental) {
+    public static String getRentalMessageForCustomer(RentalDetailedDto rental) {
         return String.format("Dear %s, you've just rented %s from %tF to %tF",
                 rental.getUser().getFirstName(),
-                rental.getCar().getBrand() + " " + rental.getCar().getModel(),
+                rental.getCarDetailed().getBrand() + " " + rental.getCarDetailed().getModel(),
                 rental.getRentalDate(),
                 rental.getReturnDate());
     }

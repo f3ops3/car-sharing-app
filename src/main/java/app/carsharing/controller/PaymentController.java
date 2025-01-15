@@ -5,6 +5,7 @@ import app.carsharing.dto.payment.PaymentRequestDto;
 import app.carsharing.dto.payment.PaymentResponseDto;
 import app.carsharing.dto.payment.PaymentStatusResponseDto;
 import app.carsharing.model.User;
+import app.carsharing.service.notification.impl.NotificationAgent;
 import app.carsharing.service.payment.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PaymentController {
     private final PaymentService paymentService;
+    private final NotificationAgent notificationAgent;
 
     @Operation(summary = "Create new payment")
     @PostMapping
@@ -47,8 +49,11 @@ public class PaymentController {
 
     @Operation(summary = "Handle success payment")
     @GetMapping("/success/{sessionId}")
-    public PaymentStatusResponseDto handleSuccess(@PathVariable String sessionId) {
-        return paymentService.handleSuccess(sessionId);
+    public PaymentStatusResponseDto handleSuccess(@AuthenticationPrincipal User user,
+                                                  @PathVariable String sessionId) {
+        PaymentStatusResponseDto responseDto = paymentService.handleSuccess(user, sessionId);
+        notificationAgent.notifyAsync(user, responseDto);
+        return responseDto;
     }
 
     @Operation(summary = "Handle cancel payment")

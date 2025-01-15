@@ -38,7 +38,7 @@ public class Payment {
     private BigDecimal amountToPay;
     @Column(nullable = false)
     private String session;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String sessionId;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

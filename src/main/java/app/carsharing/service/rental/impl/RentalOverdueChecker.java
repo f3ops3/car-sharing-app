@@ -4,8 +4,7 @@ import app.carsharing.model.Rental;
 import app.carsharing.model.User;
 import app.carsharing.repository.rental.RentalRepository;
 import app.carsharing.repository.user.UserRepository;
-import app.carsharing.service.notification.NotificationService;
-import app.carsharing.util.Message;
+import app.carsharing.service.notification.impl.NotificationAgent;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class RentalOverdueChecker {
     private final RentalRepository rentalRepository;
     private final UserRepository userRepository;
-    private final NotificationService notificationService;
+    private final NotificationAgent notificationAgent;
 
     @Scheduled(cron = "0 0 0 * * ?")
     private void checkOverDueRentals() {
@@ -47,7 +46,7 @@ public class RentalOverdueChecker {
                 if (usersWithOverdueRentals.contains(userId)) {
                     notifyUserAboutOverdueRentals(user, rentalsByUser.get(userId));
                 } else {
-                    sendNoOverdueRentalsNotification(tgChatId);
+                    sendNoOverdueRentalsNotification(user);
                 }
             }
         }
@@ -55,17 +54,13 @@ public class RentalOverdueChecker {
 
     private void notifyUserAboutOverdueRentals(User user, List<Rental> overdueRentals) {
         for (Rental rental : overdueRentals) {
-            notificationService.sendNotification(
-                    user.getTgChatId(),
-                    Message.getOverdueRentalMessageForCustomer(rental)
-            );
+            notificationAgent.notifyAsync(user, rental);
         }
     }
 
-    private void sendNoOverdueRentalsNotification(Long tgChatId) {
-        notificationService.sendNotification(
-                tgChatId,
-                "You have no overdue rentals. Thank you for returning your rentals on time!"
-        );
+    private void sendNoOverdueRentalsNotification(User user) {
+        notificationAgent.notifyAsync(user, "You have no overdue rentals. "
+                + "Thank you for returning your rentals on time!");
+
     }
 }

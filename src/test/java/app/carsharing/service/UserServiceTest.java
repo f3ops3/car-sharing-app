@@ -3,8 +3,6 @@ package app.carsharing.service;
 import static app.carsharing.util.TestUtil.getUser;
 import static app.carsharing.util.TestUtil.getUserResponseDto;
 import static app.carsharing.util.TestUtil.userRegistrationRequestDto;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -61,7 +59,11 @@ public class UserServiceTest {
 
         // THEN
         Assertions.assertNotNull(actual);
+        verify(userRepository).existsByEmail(requestDto.getEmail());
+        verify(userMapper).toEntity(requestDto);
+        verify(passwordEncoder).encode(requestDto.getPassword());
         verify(userRepository).save(user);
+        verify(userMapper).toDto(user);
         Assertions.assertTrue(EqualsBuilder.reflectionEquals(responseDto, actual, "id"));
     }
 
@@ -76,10 +78,10 @@ public class UserServiceTest {
                 () -> userService.register(requestDto));
 
         // THEN
-        assertNotNull(exception);
-        assertEquals("User with email: "
-                        + requestDto.getEmail() + " already exists",
-                exception.getMessage());
+        Assertions.assertNotNull(exception);
+        Assertions.assertEquals("User with email: "
+                + requestDto.getEmail() + " already exists", exception.getMessage());
+        verify(userRepository).existsByEmail(requestDto.getEmail());
         verify(userRepository, times(0)).save(any(User.class));
     }
 
@@ -104,8 +106,11 @@ public class UserServiceTest {
         UserDetailedDto actual = userService.updateUserRole(userId, requestDto);
 
         // THEN
-        assertNotNull(actual);
-        assertEquals(responseDto.getRole(), actual.getRole());
+        Assertions.assertNotNull(actual);
+        verify(userRepository).findById(userId);
+        verify(userRepository).save(user);
+        verify(userMapper).toFullDto(user);
+        Assertions.assertEquals(responseDto.getRole(), actual.getRole());
     }
 
     @Test
@@ -130,7 +135,10 @@ public class UserServiceTest {
         UserDetailedDto actual = userService.updateUserTgChatId(userId, requestDto);
 
         // THEN
-        assertNotNull(actual);
-        assertEquals(responseDto.getTgChatId(), actual.getTgChatId());
+        Assertions.assertNotNull(actual);
+        verify(userRepository).findById(userId);
+        verify(userRepository).save(user);
+        verify(userMapper).toFullDto(user);
+        Assertions.assertEquals(responseDto.getTgChatId(), actual.getTgChatId());
     }
 }
