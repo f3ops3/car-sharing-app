@@ -6,6 +6,7 @@ import app.carsharing.dto.rental.RentalDetailedDto;
 import app.carsharing.dto.rental.RentalResponseDto;
 import app.carsharing.dto.rental.RentalSearchParameters;
 import app.carsharing.model.User;
+import app.carsharing.service.notification.impl.NotificationAgent;
 import app.carsharing.service.rental.RentalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,13 +30,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("rentals")
 public class RentalController {
     private final RentalService rentalService;
+    private final NotificationAgent notificationAgent;
 
     @Operation(summary = "Create new rental")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public RentalDetailedDto createRental(@AuthenticationPrincipal User user,
                                           @RequestBody @Valid CreateRentalRequestDto dto) {
-        return rentalService.addRental(user, dto);
+        RentalDetailedDto response = rentalService.addRental(user, dto);
+        notificationAgent.notifyAsync(user, response);
+        return response;
     }
 
     @Operation(summary = "Get all rentals")

@@ -13,7 +13,7 @@ public interface PaymentService {
 
     Page<PaymentDetailedResponseDto> getPayments(User user, Long id, Pageable pageable);
 
-    PaymentStatusResponseDto handleSuccess(String sessionId);
+    PaymentStatusResponseDto handleSuccess(User user, String sessionId);
 
     PaymentStatusResponseDto handleCancel(String sessionId);
 }

@@ -4,7 +4,6 @@ import app.carsharing.dto.payment.PaymentDetailedResponseDto;
 import app.carsharing.dto.payment.PaymentRequestDto;
 import app.carsharing.dto.payment.PaymentResponseDto;
 import app.carsharing.dto.payment.PaymentStatusResponseDto;
-import app.carsharing.exception.NotificationException;
 import app.carsharing.exception.PaymentException;
 import app.carsharing.mapper.PaymentMapper;
 import app.carsharing.model.Payment;
@@ -15,7 +14,6 @@ import app.carsharing.model.enums.Type;
 import app.carsharing.repository.car.CarRepository;
 import app.carsharing.repository.payment.PaymentRepository;
 import app.carsharing.repository.rental.RentalRepository;
-import app.carsharing.service.notification.impl.TelegramNotificationService;
 import app.carsharing.service.payment.PaymentService;
 import app.carsharing.service.payment.impl.strategy.PaymentCalculationStrategy;
 import app.carsharing.util.Message;
@@ -26,26 +24,21 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
     private static final String COMPLETE_SESSION_STATUS = "complete";
-    private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
     private final StripeService stripeService;
     private final RentalRepository rentalRepository;
     private final PaymentRepository paymentRepository;
     private final PaymentCalculationStrategy paymentCalculationStrategy;
     private final PaymentMapper paymentMapper;
     private final CarRepository carRepository;
-    private final TelegramNotificationService notificationService;
 
     @Override
     public PaymentResponseDto createPaymentSession(User user,
@@ -74,12 +67,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional
     @Override
-    public PaymentStatusResponseDto handleSuccess(String sessionId) {
+    public PaymentStatusResponseDto handleSuccess(User user, String sessionId) {
         try {
             Payment payment = getPayment(sessionId);
             updatePaymentStatus(payment, sessionId);
-            notifyUser(payment);
-            return buildResponse(payment, "Successful payment");
+            return buildResponse(payment, Message.getSuccessfulPaymentMessageForCustomer(payment));
         } catch (StripeException e) {
             throw new PaymentException("Stripe error with session: " + sessionId);
         }
@@ -98,22 +90,6 @@ public class PaymentServiceImpl implements PaymentService {
                 () -> new EntityNotFoundException("Can't find payment by "
                         + "sessionId: " + sessionId)
         );
-    }
-
-    private void notifyUser(Payment payment) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
-            return;
-        }
-        if (user.getTgChatId() != null) {
-            try {
-                notificationService.sendNotification(user.getTgChatId(),
-                        Message.getSuccessfulPaymentMessageForCustomer(payment));
-            } catch (NotificationException e) {
-                logger.error("Failed to send notification to Telegram for user {}: {}",
-                        user.getId(), e.getMessage());
-            }
-        }
     }
 
     private void updatePaymentStatus(Payment payment, String sessionId) throws StripeException {

@@ -1,7 +1,5 @@
 package app.carsharing.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -97,9 +95,9 @@ public class RentalServiceTest {
                 () -> rentalService.addRental(USER, requestDto));
 
         // THEN
-        assertNotNull(exception);
-        assertEquals("There is no available car",
-                exception.getMessage());
+        Assertions.assertNotNull(exception);
+        Assertions.assertEquals("There is no available car", exception.getMessage());
+        verify(carRepository).findById(requestDto.getCarId());
         verify(carRepository, times(0)).save(any(Car.class));
         verify(rentalRepository, times(0)).save(any(Rental.class));
     }
@@ -119,7 +117,9 @@ public class RentalServiceTest {
         RentalDetailedDto result = rentalService.getRentalById(rentalId, USER);
 
         // THEN
-        assertNotNull(result);
+        verify(rentalRepository).findByIdAndUser(rentalId, USER);
+        verify(rentalMapper).toDetailedDto(rental);
+        Assertions.assertNotNull(result);
     }
 
     @Test
@@ -133,8 +133,9 @@ public class RentalServiceTest {
         // THEN
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> rentalService.getRentalById(rentalId, USER));
-        assertEquals("Rental not found with id: " + rentalId + " and user with id: "
+        Assertions.assertEquals("Rental not found with id: " + rentalId + " and user with id: "
                 + USER.getId(), exception.getMessage());
+        verify(rentalRepository).findByIdAndUser(rentalId, USER);
     }
 
     @Test
@@ -167,7 +168,11 @@ public class RentalServiceTest {
         RentalResponseDto result = rentalService.returnRental(USER, requestDto, rentalId);
 
         // THEN
-        assertNotNull(result);
-        assertEquals(requestDto.getActualReturnDate(), result.getActualReturnDate());
+        Assertions.assertNotNull(result);
+        verify(rentalRepository).findByIdAndUser(rentalId, USER);
+        verify(carRepository).findById(car.getId());
+        verify(rentalRepository).save(rental);
+        verify(rentalMapper).toDto(rental);
+        Assertions.assertEquals(requestDto.getActualReturnDate(), result.getActualReturnDate());
     }
 }

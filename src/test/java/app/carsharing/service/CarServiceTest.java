@@ -1,9 +1,6 @@
 package app.carsharing.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +17,7 @@ import app.carsharing.service.car.impl.CarServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,10 +31,8 @@ import org.springframework.data.domain.PageRequest;
 public class CarServiceTest {
     @Mock
     private CarRepository carRepository;
-
     @Mock
     private CarMapper carMapper;
-
     @InjectMocks
     private CarServiceImpl carService;
 
@@ -56,8 +52,10 @@ public class CarServiceTest {
         CarDetailedResponseDto result = carService.addCar(requestDto);
 
         // THEN
-        assertNotNull(result);
+        Assertions.assertNotNull(result);
+        verify(carMapper).toEntity(requestDto);
         verify(carRepository).save(car);
+        verify(carMapper).toDetailedDto(car);
     }
 
     @Test
@@ -72,8 +70,9 @@ public class CarServiceTest {
         Page<CarResponseDto> result = carService.getAll(pageable);
 
         // THEN
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
+        verify(carRepository).findAll(pageable);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1, result.getTotalElements());
     }
 
     @Test
@@ -90,7 +89,9 @@ public class CarServiceTest {
         CarDetailedResponseDto result = carService.getCarById(carId);
 
         // THEN
-        assertNotNull(result);
+        verify(carRepository).findById(carId);
+        verify(carMapper).toDetailedDto(car);
+        Assertions.assertNotNull(result);
     }
 
     @Test
@@ -105,22 +106,21 @@ public class CarServiceTest {
                 () -> carService.getCarById(carId));
 
         // THEN
-        assertTrue(exception.getMessage().contains("Car with id: " + carId + " not found"));
+        verify(carRepository).findById(carId);
+        Assertions.assertTrue(exception.getMessage().contains("Car with id: " + carId
+                + " not found"));
     }
 
     @Test
     void deleteCar_ShouldDeleteCar_WhenCarExists() {
         // GIVEN
         Long carId = 1L;
-        Car car = new Car();
-
-        when(carRepository.findById(carId)).thenReturn(Optional.of(car));
 
         // WHEN
         carService.deleteCar(carId);
 
         // THEN
-        verify(carRepository).delete(car);
+        verify(carRepository).deleteById(carId);
     }
 
     @Test
@@ -144,8 +144,10 @@ public class CarServiceTest {
         CarDetailedResponseDto result = carService.updateCarInventory(carId, requestDto);
 
         // THEN
-        assertNotNull(result);
-        assertEquals(10, car.getInventory());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(10, car.getInventory());
+        verify(carRepository).save(car);
+        verify(carMapper).toDetailedDto(car);
         verify(carMapper).patchCar(car, requestDto);
     }
 }

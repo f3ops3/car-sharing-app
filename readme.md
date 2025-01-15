@@ -37,6 +37,7 @@ Users can browse available cars, manage rentals, pay for rentals.
 - **View Rentals and Payments**: Access to all rentals and payment history.
 - **Telegram Notifications**: Managers receive updates about new rentals, overdue rentals, and successful payments.
 
+![img.png](img.png)
 
 ## Requirements
 
